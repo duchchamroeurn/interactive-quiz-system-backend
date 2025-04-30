@@ -16,8 +16,8 @@ data class OptionEntity(
     val question: QuestionEntity,
 
     @Column(name = "option_text", nullable = false)
-    val optionText: String,
+    var optionText: String,
 
     @Column(name = "is_correct", nullable = false)
-    val isCorrect: Boolean
+    var isCorrect: Boolean
 )
