@@ -2,6 +2,7 @@ package com.chamroeurn.iqs.service
 
 import com.chamroeurn.iqs.exception.RestErrorResponseException
 import com.chamroeurn.iqs.model.request.CreateQuizRequest
+import com.chamroeurn.iqs.model.request.UpdateQuizRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.QuizRepository
 import com.chamroeurn.iqs.repository.UserRepository
@@ -37,6 +38,26 @@ class QuizService(
             message = "Great! You have successfully created the quiz.",
             data = quizSaved.toResponse()
 
+        )
+    }
+
+    fun updateQuiz(quizId: UUID, quizRequest: UpdateQuizRequest): SuccessResponse<QuizResponse> {
+
+        val quiz = quizRepository.findById(quizId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        quiz.title = quizRequest.title
+
+        val quizUpdated = quizRepository.save(quiz)
+
+        return SuccessResponse(
+            message = "Great! You have successfully updated the quiz.",
+            data = quizUpdated.toResponse()
         )
     }
 

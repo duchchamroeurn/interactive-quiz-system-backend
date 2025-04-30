@@ -14,7 +14,7 @@ data class QuizEntity(
     val quizId: UUID? = null,
 
     @Column(name = "quiz_title", nullable = false)
-    val title: String,
+    var title: String,
 
     @ManyToOne
     @JoinColumn(name = "presenter_id", nullable = false)

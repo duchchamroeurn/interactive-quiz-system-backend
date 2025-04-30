@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.controller
 
 import com.chamroeurn.iqs.model.request.CreateQuizRequest
+import com.chamroeurn.iqs.model.request.UpdateQuizRequest
 import com.chamroeurn.iqs.model.response.PagedResponse
 import com.chamroeurn.iqs.model.response.QuizDetailResponse
 import com.chamroeurn.iqs.model.response.QuizResponse
@@ -24,6 +25,12 @@ class QuizController(
         return ResponseEntity.ok(
             quizResponse
         )
+    }
+
+    @PutMapping("/update/{quizId}")
+    fun updateQuiz(@PathVariable quizId: UUID, @Valid @RequestBody body: UpdateQuizRequest): ResponseEntity<SuccessResponse<QuizResponse>> {
+        val quizResponse = quizService.updateQuiz(quizId, body)
+        return ResponseEntity.ok(quizResponse)
     }
 
     @GetMapping("/{quizId}")
