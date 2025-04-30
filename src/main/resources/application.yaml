@@ -1,6 +1,15 @@
 spring:
   application:
     name: iqs
-
+  datasource:
+    url: jdbc:postgresql://localhost:5432/iqsdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 server:
   port: 9099
