@@ -16,11 +16,11 @@ data class QuestionEntity(
     val quiz: QuizEntity,
 
     @Column(name = "question_text", columnDefinition = "TEXT", nullable = false)
-    val questionText: String,
+    var questionText: String,
 
     @Column(name = "time_limit_in_second", nullable = false)
-    val timeLimitInSecond: Int,
+    var timeLimitInSecond: Int,
 
-    @OneToMany(mappedBy = "question", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "question", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val options: MutableList<OptionEntity> = mutableListOf()
 )

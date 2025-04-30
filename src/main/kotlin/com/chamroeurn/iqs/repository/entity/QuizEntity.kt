@@ -23,7 +23,7 @@ data class QuizEntity(
     @Column(name = "created_at", updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @OneToMany(mappedBy = "quiz", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "quiz", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val questions: MutableList<QuestionEntity> = mutableListOf(),
 
     @OneToMany(mappedBy = "quiz", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
