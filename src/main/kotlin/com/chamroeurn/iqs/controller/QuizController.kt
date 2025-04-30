@@ -39,6 +39,12 @@ class QuizController(
         return ResponseEntity.ok(quizResponse)
     }
 
+    @DeleteMapping("/{quizId}")
+    fun deleteQuiz(@PathVariable quizId: UUID): ResponseEntity<SuccessResponse<String?>> {
+        val message = quizService.deleteQuiz(quizId)
+        return ResponseEntity.ok(message)
+    }
+
     @GetMapping
     fun listQuizzes(
         @RequestParam(defaultValue = "0") page: Int,

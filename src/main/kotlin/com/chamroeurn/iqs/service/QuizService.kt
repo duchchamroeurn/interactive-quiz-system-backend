@@ -90,6 +90,22 @@ class QuizService(
         )
     }
 
+    fun deleteQuiz(quizId: UUID): SuccessResponse<String?> {
+        val quiz = quizRepository.findById(quizId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        quizRepository.delete(quiz)
+
+        return SuccessResponse(
+            message = "Great! You have successfully deleted the quiz.",
+        )
+    }
+
     private fun parseId(uuid: String): UUID {
         try {
             return UUID.fromString(uuid)
