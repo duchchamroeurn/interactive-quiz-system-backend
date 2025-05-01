@@ -23,7 +23,7 @@ data class SessionEntity(
     val startTime: LocalDateTime? = null,
 
     @Column(name = "end_time")
-    val endTime: LocalDateTime? = null,
+    var endTime: LocalDateTime? = null,
 
     @OneToMany(mappedBy = "session")
     val submittedAnswers: MutableList<AnswerEntity> = mutableListOf(),

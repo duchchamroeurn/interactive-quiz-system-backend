@@ -4,4 +4,7 @@ import com.chamroeurn.iqs.repository.entity.SessionEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-interface SessionRepository: JpaRepository<SessionEntity, UUID>
+interface SessionRepository: JpaRepository<SessionEntity, UUID> {
+    fun existsBySessionCode(sessionCode: String): Boolean
+    fun findBySessionCode(sessionCode: String): SessionEntity?
+}
