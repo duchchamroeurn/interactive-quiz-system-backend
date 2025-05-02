@@ -1,7 +1,5 @@
 package com.chamroeurn.iqs.model.request
 
-import com.chamroeurn.iqs.model.response.RegisterResponse
-import com.chamroeurn.iqs.model.response.SuccessResponse
 import com.chamroeurn.iqs.repository.entity.UserEntity
 import com.chamroeurn.iqs.repository.entity.UserRoles
 import com.chamroeurn.iqs.validation.ValueOfEnum

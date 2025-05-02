@@ -83,7 +83,7 @@ class SessionService(
             throw RestErrorResponseException(problemDetail)
         }
 
-        if (session.endTime != null) {
+        if (isSessionEnded(session)) {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN,
                 "This session has ended and is no longer accessible for participation."
@@ -100,6 +100,11 @@ class SessionService(
             data = updatedSession.toResponse()
 
         )
+    }
+
+    private fun isSessionEnded(session: SessionEntity): Boolean {
+        val endTime = session.endTime
+        return endTime != null && LocalDateTime.now().isAfter(endTime)
     }
 
     private fun generateTrulyUniqueSessionCode(): String {
