@@ -1,9 +1,8 @@
 package com.chamroeurn.iqs.controller
 
-import com.chamroeurn.iqs.model.response.SessionDetailResponse
-import com.chamroeurn.iqs.model.response.SessionResponse
-import com.chamroeurn.iqs.model.response.SuccessResponse
+import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.SessionService
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,10 +25,17 @@ class SessionController(
         return ResponseEntity.ok(sessionResponse)
     }
 
-    @GetMapping
-    fun getSessionByCode(@RequestParam sessionCode: String): ResponseEntity<SuccessResponse<SessionDetailResponse>> {
+    @GetMapping("/code/{sessionCode}")
+    fun getSessionByCode(@PathVariable sessionCode: String): ResponseEntity<SuccessResponse<SessionDetailResponse>> {
 
         val sessionDetailResponse = sessionService.fetchBySessionCode(sessionCode)
+        return ResponseEntity.ok(sessionDetailResponse)
+    }
+
+    @GetMapping("/{sessionId}")
+    fun getSessionById(@PathVariable sessionId: UUID): ResponseEntity<SuccessResponse<SessionDetailResponse>> {
+
+        val sessionDetailResponse = sessionService.fetchBySessionId(sessionId)
         return ResponseEntity.ok(sessionDetailResponse)
     }
 
@@ -38,5 +44,16 @@ class SessionController(
 
         val sessionDetailResponse = sessionService.endSession(sessionId)
         return ResponseEntity.ok(sessionDetailResponse)
+    }
+
+    @GetMapping
+    fun listSessions(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<PagedResponse<SessionResponse>> {
+
+        val pageQuizResponse = sessionService.allSessions(PageRequest.of(page, size))
+
+        return ResponseEntity.ok(pageQuizResponse)
     }
 }

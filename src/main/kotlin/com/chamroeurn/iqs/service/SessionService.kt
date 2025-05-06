@@ -6,6 +6,7 @@ import com.chamroeurn.iqs.repository.QuizRepository
 import com.chamroeurn.iqs.repository.SessionRepository
 import com.chamroeurn.iqs.repository.entity.SessionEntity
 import com.chamroeurn.iqs.utils.SessionCodeGenerator
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
@@ -73,6 +74,22 @@ class SessionService(
 
     }
 
+    fun fetchBySessionId(sessionId: UUID): SuccessResponse<SessionDetailResponse> {
+        val session = sessionRepository.findById(sessionId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        return SuccessResponse(
+            data = session.toSessionDetailResponse(),
+            message = "We found the session you were looking for."
+        )
+
+    }
+
     fun endSession(sessionId: UUID): SuccessResponse<SessionResponse> {
 
         val session = sessionRepository.findById(sessionId).orElseThrow {
@@ -99,6 +116,19 @@ class SessionService(
             message = "Great! You have successfully end the session.",
             data = updatedSession.toResponse()
 
+        )
+    }
+
+    fun allSessions(pageRequest: PageRequest): PagedResponse<SessionResponse> {
+
+        val pageSession = sessionRepository.findAll(pageRequest)
+
+        return PagedResponse(
+            totalElements = pageSession.totalElements,
+            size = pageSession.size,
+            totalPages = pageSession.totalPages,
+            page = pageRequest.pageNumber,
+            data = pageSession.content.mapNotNull { it.toResponse() }
         )
     }
 

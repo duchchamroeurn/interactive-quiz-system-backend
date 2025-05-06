@@ -1,6 +1,8 @@
 package com.chamroeurn.iqs.controller
 
 import com.chamroeurn.iqs.model.request.CreateQuestionRequest
+import com.chamroeurn.iqs.model.request.CreateQuestionWithOptionsRequest
+import com.chamroeurn.iqs.model.request.QuestionOptionRequest
 import com.chamroeurn.iqs.model.request.UpdateQuestionRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.QuestionService
@@ -52,6 +54,12 @@ class QuestionController(
     ): ResponseEntity<SuccessResponse<QuestionResponse>> {
         val quizResponse = questionService.updateQuestion(questionId, body)
         return ResponseEntity.ok(quizResponse)
+    }
+
+    @PostMapping("/options/create")
+    fun createQuestionWithOptions(@Valid @RequestBody body: QuestionOptionRequest): ResponseEntity<QuestionOptionRequest> {
+
+        return ResponseEntity.ok(body)
     }
 
 }

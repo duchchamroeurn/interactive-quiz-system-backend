@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.5")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("com.googlecode.json-simple:json-simple:1.1.1")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:3.4.5")
 //	implementation("org.springframework.boot:spring-boot-starter-data-redis:3.4.5")
 

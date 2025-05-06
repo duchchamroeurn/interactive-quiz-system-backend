@@ -5,6 +5,7 @@ import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.*
 import com.chamroeurn.iqs.repository.entity.*
+import com.chamroeurn.iqs.utils.GradingUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
@@ -18,7 +19,7 @@ class AnswerService(
     private val sessionRepository: SessionRepository,
     private val optionRepository: OptionRepository,
     private val questionRepository: QuestionRepository
-){
+) {
 
     fun createAnswer(submitAnswerRequest: SubmitAnswerRequest): SuccessResponse<AnswerResponse> {
 
@@ -43,7 +44,7 @@ class AnswerService(
             throw RestErrorResponseException(problemDetail)
         }
 
-        val session = sessionRepository.findById(sessionId).orElseThrow{
+        val session = sessionRepository.findById(sessionId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 "The content you are trying to access does not exist."
@@ -68,7 +69,7 @@ class AnswerService(
         }
 
 
-        val question = questionRepository.findById(questionId).orElseThrow{
+        val question = questionRepository.findById(questionId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 "The content you are trying to access does not exist."
@@ -76,7 +77,8 @@ class AnswerService(
             throw RestErrorResponseException(problemDetail)
         }
 
-        val hasUserSubmittedAnswerForSession = answerRepository.existsByUserAndSessionAndQuestion(user, session, question)
+        val hasUserSubmittedAnswerForSession =
+            answerRepository.existsByUserAndSessionAndQuestion(user, session, question)
         if (hasUserSubmittedAnswerForSession) {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
@@ -85,7 +87,7 @@ class AnswerService(
             throw RestErrorResponseException(problemDetail)
         }
 
-        if(!isQuestionBelongsToQuiz(question, session.quiz)) {
+        if (!isQuestionBelongsToQuiz(question, session.quiz)) {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 "The submitted question does not belong to the quiz of this session."
@@ -125,7 +127,7 @@ class AnswerService(
         )
     }
 
-    fun fetchAnswersBySessionAndUser(sessionId: UUID, userId: UUID?): SuccessResponse<List<AnswerResponse>> {
+    fun fetchAnswersBySession(sessionId: UUID): SuccessResponse<SessionResultResponse> {
         val session = sessionRepository.findById(sessionId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
@@ -133,27 +135,58 @@ class AnswerService(
             )
             throw RestErrorResponseException(problemDetail)
         }
-        var answers = mutableListOf<AnswerEntity>()
-        if (userId != null) {
-            val user = userRepository.findById(userId).orElseThrow {
-                val problemDetail = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.NOT_FOUND,
-                    "The content you are trying to access does not exist."
-                )
-                throw RestErrorResponseException(problemDetail)
-            }
-            answers = answerRepository.getAnswersByUserAndSession(user, session)
 
-        } else {
-            answers = answerRepository.getAnswersBySession(session)
+        val answers = answerRepository.getAnswersBySession(session)
+        if (answers.isEmpty()) {
+            return SuccessResponse(
+                data = session.sessionId?.let {
+                    SessionResultResponse(
+                        sessionId = it,
+                        sessionCode = session.sessionCode,
+                        startTime = session.startTime,
+                        endTime = session.endTime,
+                        participants = emptyList()
+                    )
+                },
+                message = "Successful list answers by session"
+            )
         }
-
-
         return SuccessResponse(
-            data = answers.mapNotNull { it.toAnswerResponse() },
+            data = answers.toSessionResultResponse(),
             message = "Successful list answers by session"
         )
 
+    }
+
+    fun fetchAnswersBySessionAndUser(sessionId: UUID, userId: UUID): SuccessResponse<SessionResultByUserResponse>{
+        val session = sessionRepository.findById(sessionId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+        val user = userRepository.findById(userId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        val answers = answerRepository.getAnswersByUserAndSession(user, session)
+        if(answers.isEmpty()) {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        return SuccessResponse(
+            message = "Successful list answers by user in the session.",
+            data = answers.toSessionResultByUserResponse()
+        )
     }
 
     fun fetchResultQuestionInSession(sessionId: UUID, questionId: UUID): SuccessResponse<ResultQuestionResponse> {

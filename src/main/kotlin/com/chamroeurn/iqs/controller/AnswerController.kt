@@ -1,13 +1,12 @@
 package com.chamroeurn.iqs.controller
 
 import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
-import com.chamroeurn.iqs.model.response.AnswerResponse
-import com.chamroeurn.iqs.model.response.ResultQuestionResponse
-import com.chamroeurn.iqs.model.response.SuccessResponse
+import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.AnswerService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -28,11 +27,20 @@ class AnswerController(
         return ResponseEntity.ok(answerResponse)
     }
 
-    @GetMapping()
-    fun viewAnswers(
-        @RequestParam sessionId: UUID,
-        @RequestParam userId: UUID?
-    ): ResponseEntity<SuccessResponse<List<AnswerResponse>>> {
+    @GetMapping("/session/{sessionId}")
+    fun viewAnswersBySessionId(
+        @PathVariable sessionId: UUID,
+    ): ResponseEntity<SuccessResponse<SessionResultResponse>> {
+
+        val answersResponse = answerService.fetchAnswersBySession(sessionId)
+        return ResponseEntity.ok(answersResponse)
+    }
+
+    @GetMapping("/session/{sessionId}/user/{userId}")
+    fun viewAnswersBySessionIdUserId(
+        @PathVariable sessionId: UUID,
+        @PathVariable userId: UUID
+    ): ResponseEntity<SuccessResponse<SessionResultByUserResponse>> {
 
         val answersResponse = answerService.fetchAnswersBySessionAndUser(sessionId, userId)
         return ResponseEntity.ok(answersResponse)
