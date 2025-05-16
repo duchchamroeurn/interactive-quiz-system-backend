@@ -21,7 +21,7 @@ fun MutableList<AnswerEntity>.toSessionResultByUserResponse(): SessionResultByUs
     val quiz = session.quiz
     val answers = mapNotNull {
         it.question.questionId?.let { it1 ->
-            it.option.optionId?.let { it2 ->
+            it.option?.optionId?.let { it2 ->
                 AnswerQuestionResponse(
                     questionId = it1,
                     answerId = it2

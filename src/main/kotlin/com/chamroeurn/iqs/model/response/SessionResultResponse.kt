@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.model.response
 
 import com.chamroeurn.iqs.repository.entity.AnswerEntity
+import com.chamroeurn.iqs.repository.entity.QuestionTypes
 import java.time.LocalDateTime
 import java.util.*
 
@@ -27,7 +28,10 @@ fun MutableList<AnswerEntity>.toSessionResultResponse(): SessionResultResponse? 
     val session = first().session
     val participants: List<ParticipantSessionResponse> = groupBy { it.user }.map { (user, answers) ->
         val totalPoint = answers.count().toDouble() // Ensure Double for calculations
-        val totalEarnedPoint = answers.count { it.option.isCorrect }.toDouble() // Handle null option
+        val totalEarnedPoint =
+            answers.filter { it.question.type == QuestionTypes.MULTIPLE_CHOICE }.count { it.option!!.isCorrect }
+                .plus(answers.filter { it.question.type == QuestionTypes.TRUE_FALSE }
+                    .count { it.replyAnswer == it.question.correctAnswer }).toDouble() // Handle null option
         val percentage = if (totalPoint > 0) (totalEarnedPoint / totalPoint) * 100 else 0.0  // Avoid division by zero
         val examResult = percentage >= 50.0 // Use Double for comparison
 
@@ -44,12 +48,12 @@ fun MutableList<AnswerEntity>.toSessionResultResponse(): SessionResultResponse? 
 
     return session.sessionId?.let {
         SessionResultResponse(
-        sessionId = it,
-        sessionCode = session.sessionCode,
-        startTime = session.startTime,
-        endTime = session.endTime,
-        participants = participants
-    )
+            sessionId = it,
+            sessionCode = session.sessionCode,
+            startTime = session.startTime,
+            endTime = session.endTime,
+            participants = participants
+        )
     }
 
 }

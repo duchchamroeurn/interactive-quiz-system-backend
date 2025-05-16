@@ -25,8 +25,11 @@ data class AnswerEntity(
     val question: QuestionEntity,
 
     @ManyToOne
-    @JoinColumn(name = "option_id", nullable = false)
-    val option: OptionEntity,
+    @JoinColumn(name = "option_id", nullable = true)
+    val option: OptionEntity? = null,
+
+    @Column(name = "reply_answer", nullable = true)
+    val replyAnswer: Boolean? = null,
 
     @Column(name = "answer_time")
     val answerTime: LocalDateTime? = LocalDateTime.now()

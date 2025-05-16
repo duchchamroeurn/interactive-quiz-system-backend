@@ -5,7 +5,6 @@ import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.*
 import com.chamroeurn.iqs.repository.entity.*
-import com.chamroeurn.iqs.utils.GradingUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
@@ -26,7 +25,12 @@ class AnswerService(
         val userId = parseToUUID(submitAnswerRequest.userId, "userId")
         val sessionId = parseToUUID(submitAnswerRequest.sessionId, field = "sessionId")
         val questionId = parseToUUID(submitAnswerRequest.questionId, "questionId")
-        val optionId = parseToUUID(submitAnswerRequest.optionId, field = "optionId")
+
+        var optionId: UUID? = null
+
+        if (submitAnswerRequest.optionId !== null) {
+            optionId = parseToUUID(submitAnswerRequest.optionId, field = "optionId")
+        }
 
         val user = userRepository.findById(userId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
@@ -94,29 +98,31 @@ class AnswerService(
             )
             throw RestErrorResponseException(problemDetail)
         }
+        var option: OptionEntity? = null
+        if (optionId !== null) {
+            option = optionRepository.findById(optionId).orElseThrow {
+                val problemDetail = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.NOT_FOUND,
+                    "The content you are trying to access does not exist."
+                )
+                throw RestErrorResponseException(problemDetail)
+            }
+            if (!isOptionBelongsToQuestion(option, question)) {
 
-        val option = optionRepository.findById(optionId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                "The content you are trying to access does not exist."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        if (!isOptionBelongsToQuestion(option, question)) {
-
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "The selected option does not belong to the submitted question."
-            )
-            throw RestErrorResponseException(problemDetail)
+                val problemDetail = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.BAD_REQUEST,
+                    "The selected option does not belong to the submitted question."
+                )
+                throw RestErrorResponseException(problemDetail)
+            }
         }
 
         val newAnswer = AnswerEntity(
             user = user,
             session = session,
             question = question,
-            option = option
+            option = option,
+            replyAnswer = submitAnswerRequest.answer
         )
 
         val answerSaved = answerRepository.save(newAnswer)
@@ -158,7 +164,7 @@ class AnswerService(
 
     }
 
-    fun fetchAnswersBySessionAndUser(sessionId: UUID, userId: UUID): SuccessResponse<SessionResultByUserResponse>{
+    fun fetchAnswersBySessionAndUser(sessionId: UUID, userId: UUID): SuccessResponse<SessionResultByUserResponse> {
         val session = sessionRepository.findById(sessionId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
@@ -175,7 +181,7 @@ class AnswerService(
         }
 
         val answers = answerRepository.getAnswersByUserAndSession(user, session)
-        if(answers.isEmpty()) {
+        if (answers.isEmpty()) {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 "The content you are trying to access does not exist."

@@ -17,6 +17,6 @@ fun MutableList<AnswerEntity>.toResultQuestionResponse() = first().question.ques
         questionText = first().question.questionText,
         timeLimitInSecond = first().question.timeLimitInSecond,
         options = first().question.options.mapNotNull { it.toResponse() },
-        answers = mapNotNull { it.option.toResponse() }
+        answers = mapNotNull { it.option?.toResponse() }
     )
 }

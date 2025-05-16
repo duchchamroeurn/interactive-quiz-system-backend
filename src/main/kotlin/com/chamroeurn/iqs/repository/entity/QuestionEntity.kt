@@ -18,9 +18,18 @@ data class QuestionEntity(
     @Column(name = "question_text", columnDefinition = "TEXT", nullable = false)
     var questionText: String,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "question_type")
+    val type: QuestionTypes = QuestionTypes.MULTIPLE_CHOICE,
+
+    @Column(name = "correct_answer", nullable = true)
+    val correctAnswer: Boolean? = null, //exist value if question type = TRUE_FALSE
+
     @Column(name = "time_limit_in_second", nullable = false)
     var timeLimitInSecond: Int,
 
     @OneToMany(mappedBy = "question", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val options: MutableList<OptionEntity> = mutableListOf()
 )
+
+enum class QuestionTypes { MULTIPLE_CHOICE, TRUE_FALSE }

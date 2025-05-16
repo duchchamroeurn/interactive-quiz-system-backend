@@ -14,12 +14,14 @@ data class AnswerResponse(
 )
 
 fun AnswerEntity.toAnswerResponse() = answerId?.let {
-    AnswerResponse(
+    option?.optionText?.let { it1 ->
+        AnswerResponse(
         answerId = it,
         sessionCode = session.sessionCode,
         username = user.username,
         question = question.questionText,
-        answerSubmit = option.optionText,
+        answerSubmit = it1,
         answerTime = answerTime
     )
+    }
 }

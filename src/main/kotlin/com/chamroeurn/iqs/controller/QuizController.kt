@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.controller
 
 import com.chamroeurn.iqs.model.request.CreateQuizRequest
+import com.chamroeurn.iqs.model.request.QuizWithQuestionsOptionsRequest
 import com.chamroeurn.iqs.model.request.UpdateQuizRequest
 import com.chamroeurn.iqs.model.response.PagedResponse
 import com.chamroeurn.iqs.model.response.QuizDetailResponse
@@ -54,5 +55,13 @@ class QuizController(
         val pageQuizResponse = quizService.allQuizzes(PageRequest.of(page, size))
 
         return ResponseEntity.ok(pageQuizResponse)
+    }
+
+    @PostMapping("/create-with-questions")
+    fun createWithQuestions(@Valid @RequestBody body: QuizWithQuestionsOptionsRequest): ResponseEntity<SuccessResponse<QuizResponse>> {
+        val quizResponse = quizService.createWithQuestions(body)
+        return ResponseEntity.ok(
+            quizResponse
+        )
     }
 }

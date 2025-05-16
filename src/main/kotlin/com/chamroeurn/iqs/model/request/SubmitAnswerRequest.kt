@@ -15,5 +15,7 @@ data class SubmitAnswerRequest(
     val questionId: String,
 
     @field:Pattern(regexp = AppConstants.UUID_REGEX, message = "Option ID must be a valid UUID.")
-    val optionId: String
+    val optionId: String?,
+
+    val answer: Boolean?
 )

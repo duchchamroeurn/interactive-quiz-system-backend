@@ -16,6 +16,9 @@ data class QuizEntity(
     @Column(name = "quiz_title", nullable = false)
     var title: String,
 
+    @Column(name = "quiz_des", nullable = true, length = 500)
+    var description: String? = null,
+
     @ManyToOne
     @JoinColumn(name = "presenter_id", nullable = false)
     val presenter: UserEntity,
