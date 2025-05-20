@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -117,6 +118,23 @@ class SessionService(
             data = updatedSession.toResponse()
 
         )
+    }
+
+    @Transactional
+    fun deleteSession(sessionId: UUID): SuccessResponse<String> {
+        try {
+            sessionRepository.deleteById(sessionId)
+            return SuccessResponse(
+                message = "Great! You have successfully deleted the session.",
+                data = "Session was remove."
+            )
+        } catch (error: Exception) {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                error.message
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
     }
 
     fun allSessions(pageRequest: PageRequest): PagedResponse<SessionResponse> {

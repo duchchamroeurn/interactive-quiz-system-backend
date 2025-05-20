@@ -25,7 +25,7 @@ data class SessionEntity(
     @Column(name = "end_time")
     var endTime: LocalDateTime? = null,
 
-    @OneToMany(mappedBy = "session")
+    @OneToMany(mappedBy = "session", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val submittedAnswers: MutableList<AnswerEntity> = mutableListOf(),
 
 

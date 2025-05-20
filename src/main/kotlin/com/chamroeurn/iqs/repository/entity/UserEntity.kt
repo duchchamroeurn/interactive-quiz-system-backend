@@ -23,10 +23,10 @@ data class UserEntity(
     @Enumerated(EnumType.STRING)
     val role: UserRoles,
 
-    @OneToMany(mappedBy = "presenter", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "presenter", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val quizzes: MutableList<QuizEntity> = mutableListOf(),
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val answers: MutableList<AnswerEntity> = mutableListOf()
 )
 

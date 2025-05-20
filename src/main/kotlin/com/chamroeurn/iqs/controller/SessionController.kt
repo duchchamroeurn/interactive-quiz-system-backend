@@ -46,6 +46,13 @@ class SessionController(
         return ResponseEntity.ok(sessionDetailResponse)
     }
 
+    @PostMapping("/delete/{sessionId}")
+    fun deleteSession(@PathVariable sessionId: UUID): ResponseEntity<SuccessResponse<String>> {
+
+        val sessionDeleteResponse = sessionService.deleteSession(sessionId)
+        return ResponseEntity.ok(sessionDeleteResponse)
+    }
+
     @GetMapping
     fun listSessions(
         @RequestParam(defaultValue = "0") page: Int,
