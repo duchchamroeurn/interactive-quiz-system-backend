@@ -46,6 +46,8 @@ data class QuestionRequest(
 
     val correctAnswer: Boolean? = null,
 
+    val isCustomize: Boolean? = null,
+
     @field:Positive(message = "Time limit must be greater than zero.")
     val timeLimit: Int,
 
@@ -58,8 +60,8 @@ data class OptionRequest(
     val id: String? = null,
 
     @field:NotNull(message = "Option text must not be blank.")
-    val text: String,
+    val optionText: String,
 
     @field:NotNull(message = "The 'isCorrect' field for the option is required.")
-    val isCorrect: Boolean
+    val correct: Boolean
 )

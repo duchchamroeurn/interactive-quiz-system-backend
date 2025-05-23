@@ -25,6 +25,9 @@ data class QuestionEntity(
     @Column(name = "correct_answer", nullable = true)
     val correctAnswer: Boolean? = null, //exist value if question type = TRUE_FALSE
 
+    @Column(name = "customize_label", nullable = true)
+    val isCustomize: Boolean? = null,
+
     @Column(name = "time_limit_in_second", nullable = false)
     var timeLimitInSecond: Int,
 
@@ -32,4 +35,4 @@ data class QuestionEntity(
     val options: MutableList<OptionEntity> = mutableListOf()
 )
 
-enum class QuestionTypes { MULTIPLE_CHOICE, TRUE_FALSE }
+enum class QuestionTypes { MULTIPLE_CHOICE, TRUE_FALSE, YES_NO }

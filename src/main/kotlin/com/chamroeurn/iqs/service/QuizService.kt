@@ -96,7 +96,8 @@ class QuizService(
                 questionText = it.text,
                 timeLimitInSecond = it.timeLimit,
                 quiz = quizSaved,
-                correctAnswer = it.correctAnswer
+                correctAnswer = it.correctAnswer,
+                isCustomize = it.isCustomize
             )
             val questionSaved = questionRepository.save(questionCreate)
 
@@ -105,8 +106,8 @@ class QuizService(
                 it.map { optionRequest ->
                     val optionCreate = OptionEntity(
                         question = questionSaved,
-                        optionText = optionRequest.text,
-                        isCorrect = optionRequest.isCorrect
+                        optionText = optionRequest.optionText,
+                        isCorrect = optionRequest.correct
                     )
                     optionRepository.save(optionCreate)
                 }
