@@ -27,7 +27,10 @@ data class UserEntity(
     val quizzes: MutableList<QuizEntity> = mutableListOf(),
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
-    val answers: MutableList<AnswerEntity> = mutableListOf()
+    val answers: MutableList<AnswerEntity> = mutableListOf(),
+
+    @ManyToMany(mappedBy = "accessibleUsers", cascade = [CascadeType.DETACH], fetch = FetchType.EAGER)
+    val sessions: MutableList<SessionEntity> = mutableListOf()
 )
 
 

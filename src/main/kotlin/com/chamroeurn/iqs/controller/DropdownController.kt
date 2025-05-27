@@ -29,4 +29,19 @@ class DropdownController(
         val quizDropdownResponse = dropdownService.searchQuizzesDropdown(query, size)
         return ResponseEntity.ok(quizDropdownResponse)
     }
+
+    @GetMapping("/audiences")
+    fun getAudiences(
+        @RequestParam(
+            name = "query",
+            defaultValue = ""
+        ) query: String,
+        @RequestParam(
+            name = "size",
+            defaultValue = "20"
+        ) size: Int,
+    ): ResponseEntity<SuccessResponse<List<DropdownResponse>>> {
+        val audiencesDropdownResponse = dropdownService.searchAudiencesDropdown(query, size)
+        return ResponseEntity.ok(audiencesDropdownResponse)
+    }
 }
