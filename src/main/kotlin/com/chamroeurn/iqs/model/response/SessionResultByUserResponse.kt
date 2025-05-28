@@ -12,7 +12,7 @@ data class SessionResultByUserResponse(
 
 data class AnswerQuestionResponse(
     val questionId: UUID,
-    val answerId: UUID
+    val answerId: String
 )
 
 fun MutableList<AnswerEntity>.toSessionResultByUserResponse(): SessionResultByUserResponse? {
@@ -21,12 +21,11 @@ fun MutableList<AnswerEntity>.toSessionResultByUserResponse(): SessionResultByUs
     val quiz = session.quiz
     val answers = mapNotNull {
         it.question.questionId?.let { it1 ->
-            it.option?.optionId?.let { it2 ->
+            val answerValue = if (it.option == null) it.replyAnswer.toString() else it.option.optionId.toString()
                 AnswerQuestionResponse(
                     questionId = it1,
-                    answerId = it2
+                    answerId = answerValue
                 )
-            }
         }
     }
 

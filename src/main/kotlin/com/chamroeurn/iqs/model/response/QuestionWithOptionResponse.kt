@@ -8,6 +8,9 @@ data class QuestionWithOptionResponse(
     val id: UUID,
     val questionText: String,
     val time: Int,
+    val type: String,
+    val isCustomize: Boolean,
+    val correctAnswer: Boolean?,
     val options: List<OptionResponse>
 )
 
@@ -19,6 +22,9 @@ fun QuestionEntity.toQuestionWithOptionResponse(): QuestionWithOptionResponse? {
                     id = id,
                     questionText = questionText,
                     time = timeLimitInSecond,
+                    type = type.name,
+                    isCustomize = false,
+                    correctAnswer = correctAnswer,
                     options = mutableListOf(
                         OptionResponse(id = UUID.randomUUID(), optionText = "Yes", isCorrect = correctAnswer == true),
                         OptionResponse(id = UUID.randomUUID(), optionText = "No", isCorrect = correctAnswer == false),
@@ -29,6 +35,9 @@ fun QuestionEntity.toQuestionWithOptionResponse(): QuestionWithOptionResponse? {
                     id = id,
                     questionText = questionText,
                     time = timeLimitInSecond,
+                    type = type.name,
+                    isCustomize = false,
+                    correctAnswer = correctAnswer,
                     options = mutableListOf(
                         OptionResponse(id = UUID.randomUUID(), optionText = "True", isCorrect = correctAnswer == true),
                         OptionResponse(
@@ -44,6 +53,9 @@ fun QuestionEntity.toQuestionWithOptionResponse(): QuestionWithOptionResponse? {
             id = id,
             questionText = questionText,
             time = timeLimitInSecond,
+            type = type.name,
+            isCustomize = isCustomize == true,
+            correctAnswer = correctAnswer,
             options = options.mapNotNull { it.toResponse() }
         )
     }

@@ -12,6 +12,7 @@ import com.chamroeurn.iqs.repository.entity.SessionEntity
 import com.chamroeurn.iqs.repository.entity.UserEntity
 import com.chamroeurn.iqs.utils.SessionCodeGenerator
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
@@ -233,5 +234,23 @@ class SessionService(
             return sessionRepository.save(session)
         }
         return null
+    }
+
+    @Transactional(readOnly = true) // Mark as read-only for performance and to ensure lazy loading works
+    fun getAvailableQuizzesForUser(userId: UUID, pageable: Pageable): PagedResponse<SessionWithQuizResponse> {
+        // Option 1: Use the single comprehensive query (recommended)
+        val accessibleSessionsPage = sessionRepository.findAccessibleSessionsByUserId(userId, pageable)
+
+        // Extract unique quizzes from the accessible sessions
+        val uniqueQuizzes = accessibleSessionsPage.content // Map each session to its associated quiz
+            .distinct().mapNotNull { it.toSessionWithQuizResponse() }    // Get only unique quizzes
+        // Manually create a Page object for quizzes based on the original page's metadata
+        return PagedResponse(
+            totalElements = accessibleSessionsPage.totalElements,
+            size = accessibleSessionsPage.size,
+            totalPages = accessibleSessionsPage.totalPages,
+            page = pageable.pageNumber,
+            data = uniqueQuizzes
+        )
     }
 }

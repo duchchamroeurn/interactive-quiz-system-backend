@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.controller
 
 import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
+import com.chamroeurn.iqs.model.request.UserSubmitAnswersRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.AnswerService
 import jakarta.validation.Valid
@@ -54,5 +55,16 @@ class AnswerController(
 
         val resultQuestion = answerService.fetchResultQuestionInSession(sessionId, questionId)
         return ResponseEntity.ok(resultQuestion)
+    }
+
+    @PostMapping("/session/{sessionId}/user/{userId}")
+    fun submitAnswersBySessionIdUserId(
+        @PathVariable sessionId: UUID,
+        @PathVariable userId: UUID,
+        @Valid @RequestBody request: UserSubmitAnswersRequest
+    ): ResponseEntity<SuccessResponse<String>> {
+        val submitAnswerResponse = answerService.userSubmitAnswers(userId, sessionId, request)
+
+        return ResponseEntity.ok(submitAnswerResponse)
     }
 }
