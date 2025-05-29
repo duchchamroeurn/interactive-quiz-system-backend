@@ -28,10 +28,22 @@ fun MutableList<AnswerEntity>.toSessionResultResponse(): SessionResultResponse? 
     val session = first().session
     val participants: List<ParticipantSessionResponse> = groupBy { it.user }.map { (user, answers) ->
         val totalPoint = session.quiz.questions.count().toDouble() // Ensure Double for calculations
-        val totalEarnedPoint =
-            answers.filter { it.question.type == QuestionTypes.MULTIPLE_CHOICE || it.question.isCustomize == true }.count { it.option!!.isCorrect }
-                .plus(answers.filter { it.question.type == QuestionTypes.TRUE_FALSE || it.question.type == QuestionTypes.YES_NO}
-                    .count { it.replyAnswer == it.question.correctAnswer }).toDouble() // Handle null option
+        val totalEarnedPoint = answers.sumOf { answer ->
+            when (answer.question.type) {
+                QuestionTypes.MULTIPLE_CHOICE -> {
+                    // Ensure option is not null and is correct
+                    if (answer.option?.isCorrect == true) 1.0 else 0.0
+                }
+                QuestionTypes.TRUE_FALSE, QuestionTypes.YES_NO -> {
+                    if (answer.question.isCustomize == true) {
+                        if (answer.option?.isCorrect == true) 1.0 else 0.0
+                    } else {
+                        if (answer.replyAnswer!!.and(answer.question.correctAnswer!!)) 1.0 else 0.0
+                    }
+
+                }
+            }
+        }
         val percentage = if (totalPoint > 0) (totalEarnedPoint / totalPoint) * 100 else 0.0  // Avoid division by zero
         val examResult = percentage >= 50.0 // Use Double for comparison
 
