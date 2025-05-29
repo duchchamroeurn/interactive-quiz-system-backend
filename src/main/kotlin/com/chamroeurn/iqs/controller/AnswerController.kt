@@ -1,6 +1,5 @@
 package com.chamroeurn.iqs.controller
 
-import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
 import com.chamroeurn.iqs.model.request.UserSubmitAnswersRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.AnswerService
@@ -20,14 +19,6 @@ import java.util.UUID
 class AnswerController(
     private val answerService: AnswerService
 ) {
-
-    @PostMapping("/submit")
-    fun submitAnswer(@Valid @RequestBody body: SubmitAnswerRequest): ResponseEntity<SuccessResponse<AnswerResponse>> {
-        val answerResponse = answerService.createAnswer(body)
-
-        return ResponseEntity.ok(answerResponse)
-    }
-
     @GetMapping("/session/{sessionId}")
     fun viewAnswersBySessionId(
         @PathVariable sessionId: UUID,

@@ -1,7 +1,6 @@
 package com.chamroeurn.iqs.service
 
 import com.chamroeurn.iqs.exception.RestErrorResponseException
-import com.chamroeurn.iqs.model.request.SubmitAnswerRequest
 import com.chamroeurn.iqs.model.request.UserSubmitAnswersRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.*
@@ -21,119 +20,6 @@ class AnswerService(
     private val optionRepository: OptionRepository,
     private val questionRepository: QuestionRepository
 ) {
-
-    fun createAnswer(submitAnswerRequest: SubmitAnswerRequest): SuccessResponse<AnswerResponse> {
-
-        val userId = parseToUUID(submitAnswerRequest.userId, "userId")
-        val sessionId = parseToUUID(submitAnswerRequest.sessionId, field = "sessionId")
-        val questionId = parseToUUID(submitAnswerRequest.questionId, "questionId")
-
-        var optionId: UUID? = null
-
-        if (submitAnswerRequest.optionId !== null) {
-            optionId = parseToUUID(submitAnswerRequest.optionId, field = "optionId")
-        }
-
-        val user = userRepository.findById(userId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                "The content you are trying to access does not exist."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        if (user.role == UserRoles.ADMIN) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "Access to the requested resource is forbidden due to insufficient user privileges."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        val session = sessionRepository.findById(sessionId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                "The content you are trying to access does not exist."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        if (isSessionEnded(session)) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "This session has ended. Submissions are no longer allowed."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        if (isQuizOwner(user, session.quiz)) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "Quiz owners are not allowed to submit answers to their own quizzes."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-
-        val question = questionRepository.findById(questionId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                "The content you are trying to access does not exist."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        val hasUserSubmittedAnswerForSession =
-            answerRepository.existsByUserAndSessionAndQuestion(user, session, question)
-        if (hasUserSubmittedAnswerForSession) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "You have already submitted answers for this session."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        if (!isQuestionBelongsToQuiz(question, session.quiz)) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "The submitted question does not belong to the quiz of this session."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-        var option: OptionEntity? = null
-        if (optionId !== null) {
-            option = optionRepository.findById(optionId).orElseThrow {
-                val problemDetail = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.NOT_FOUND,
-                    "The content you are trying to access does not exist."
-                )
-                throw RestErrorResponseException(problemDetail)
-            }
-            if (!isOptionBelongsToQuestion(option, question)) {
-
-                val problemDetail = ProblemDetail.forStatusAndDetail(
-                    HttpStatus.BAD_REQUEST,
-                    "The selected option does not belong to the submitted question."
-                )
-                throw RestErrorResponseException(problemDetail)
-            }
-        }
-
-        val newAnswer = AnswerEntity(
-            user = user,
-            session = session,
-            question = question,
-            option = option,
-            replyAnswer = submitAnswerRequest.answer
-        )
-
-        val answerSaved = answerRepository.save(newAnswer)
-
-        return SuccessResponse(
-            data = answerSaved.toAnswerResponse(),
-            message = "Your answer has been submitted successfully."
-        )
-    }
 
     fun fetchAnswersBySession(sessionId: UUID): SuccessResponse<SessionResultResponse> {
         val session = sessionRepository.findById(sessionId).orElseThrow {
