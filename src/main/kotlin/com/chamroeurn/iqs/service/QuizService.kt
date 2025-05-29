@@ -1,9 +1,7 @@
 package com.chamroeurn.iqs.service
 
 import com.chamroeurn.iqs.exception.RestErrorResponseException
-import com.chamroeurn.iqs.model.request.CreateQuizRequest
 import com.chamroeurn.iqs.model.request.QuizWithQuestionsOptionsRequest
-import com.chamroeurn.iqs.model.request.UpdateQuizRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.OptionRepository
 import com.chamroeurn.iqs.repository.QuestionRepository
@@ -24,28 +22,6 @@ class QuizService(
     private val optionRepository: OptionRepository,
     private val userService: UserRepository
 ) {
-
-    fun createQuiz(quizRequest: CreateQuizRequest): SuccessResponse<QuizResponse> {
-
-        val presenterId = parseId(quizRequest.presenterId)
-        val presenter = userService.findById(presenterId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request content.")
-            val errors = mutableMapOf<String, String>()
-            errors["presenterId"] = "The presenter ID is not valid."
-            problemDetail.properties = errors as Map<String, Any>?
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        val quiz = QuizEntity(title = quizRequest.title, presenter = presenter)
-
-        val quizSaved = quizRepository.save(quiz)
-
-        return SuccessResponse(
-            message = "Great! You have successfully created the quiz.",
-            data = quizSaved.toResponse()
-
-        )
-    }
 
     @Transactional
     fun createWithQuestions(quizRequest: QuizWithQuestionsOptionsRequest): SuccessResponse<QuizResponse> {
@@ -120,26 +96,6 @@ class QuizService(
             data = quizSaved.toResponse()
         )
 
-    }
-
-    fun updateQuiz(quizId: UUID, quizRequest: UpdateQuizRequest): SuccessResponse<QuizResponse> {
-
-        val quiz = quizRepository.findById(quizId).orElseThrow {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                "The content you are trying to access does not exist."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
-        quiz.title = quizRequest.title
-
-        val quizUpdated = quizRepository.save(quiz)
-
-        return SuccessResponse(
-            message = "Great! You have successfully updated the quiz.",
-            data = quizUpdated.toResponse()
-        )
     }
 
     fun allQuizzes(pageRequest: PageRequest): PagedResponse<QuizResponse> {

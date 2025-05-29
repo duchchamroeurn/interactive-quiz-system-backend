@@ -3,7 +3,6 @@ package com.chamroeurn.iqs.service
 import com.chamroeurn.iqs.exception.RestErrorResponseException
 import com.chamroeurn.iqs.model.request.CreateOptionRequest
 import com.chamroeurn.iqs.model.request.UpdateOptionRequest
-import com.chamroeurn.iqs.model.request.UpdateQuizRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.OptionRepository
 import com.chamroeurn.iqs.repository.QuestionRepository
