@@ -108,7 +108,6 @@ class AnswerService(
         )
     }
 
-
     @Transactional
     fun userSubmitAnswers(userId: UUID, sessionId: UUID, request: UserSubmitAnswersRequest): SuccessResponse<String> {
 
@@ -220,9 +219,7 @@ class AnswerService(
             message = "You have successful submitted the answers.",
             data = "Success"
         )
-
     }
-
 
     private fun isOptionBelongsToQuestion(option: OptionEntity, question: QuestionEntity): Boolean {
         return option.question.questionId == question.questionId
@@ -239,17 +236,5 @@ class AnswerService(
 
     private fun isQuestionBelongsToQuiz(question: QuestionEntity, quiz: QuizEntity): Boolean {
         return question.quiz.quizId == quiz.quizId
-    }
-
-    private fun parseToUUID(from: String, field: String): UUID {
-        try {
-            return UUID.fromString(from)
-        } catch (ex: Exception) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request content.")
-            val errors = mutableMapOf<String, String>()
-            errors[field] = "The $field is not valid."
-            problemDetail.properties = errors as Map<String, Any>?
-            throw RestErrorResponseException(problemDetail)
-        }
     }
 }
