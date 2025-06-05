@@ -1,5 +1,6 @@
 package com.chamroeurn.iqs.model.response
 
+import com.chamroeurn.iqs.config.constants.QuizConstants
 import com.chamroeurn.iqs.repository.entity.QuestionEntity
 import com.chamroeurn.iqs.repository.entity.QuestionTypes
 import java.util.*
@@ -25,10 +26,7 @@ fun QuestionEntity.toQuestionWithOptionResponse(): QuestionWithOptionResponse? {
                     type = type.name,
                     isCustomize = false,
                     correctAnswer = correctAnswer,
-                    options = mutableListOf(
-                        OptionResponse(id = UUID.randomUUID(), optionText = "Yes", isCorrect = correctAnswer == true),
-                        OptionResponse(id = UUID.randomUUID(), optionText = "No", isCorrect = correctAnswer == false),
-                    )
+                    options = QuizConstants.getYesNoOptions(correctAnswer!!),
                 )
             } else {
                 return QuestionWithOptionResponse(
@@ -38,15 +36,8 @@ fun QuestionEntity.toQuestionWithOptionResponse(): QuestionWithOptionResponse? {
                     type = type.name,
                     isCustomize = false,
                     correctAnswer = correctAnswer,
-                    options = mutableListOf(
-                        OptionResponse(id = UUID.randomUUID(), optionText = "True", isCorrect = correctAnswer == true),
-                        OptionResponse(
-                            id = UUID.randomUUID(),
-                            optionText = "False",
-                            isCorrect = correctAnswer == false
-                        ),
+                    options = QuizConstants.getTrueFalseOptions(correctAnswer!!),
                     )
-                )
             }
         }
         return QuestionWithOptionResponse(

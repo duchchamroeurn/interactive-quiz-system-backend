@@ -38,7 +38,7 @@ fun MutableList<AnswerEntity>.toSessionResultResponse(): SessionResultResponse? 
                     if (answer.question.isCustomize == true) {
                         if (answer.option?.isCorrect == true) 1.0 else 0.0
                     } else {
-                        if (answer.replyAnswer!!.and(answer.question.correctAnswer!!)) 1.0 else 0.0
+                        if (answer.replyAnswer === answer.question.correctAnswer) 1.0 else 0.0
                     }
 
                 }

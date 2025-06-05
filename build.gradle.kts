@@ -24,10 +24,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-	implementation("org.springframework.boot:spring-boot-starter-web:3.4.5")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.4.5")
 	implementation("org.postgresql:postgresql")
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.5")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.googlecode.json-simple:json-simple:1.1.1")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:3.4.5")

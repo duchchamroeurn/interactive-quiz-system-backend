@@ -1,5 +1,6 @@
 package com.chamroeurn.iqs.service
 
+import com.chamroeurn.iqs.config.constants.QuizConstants
 import com.chamroeurn.iqs.exception.RestErrorResponseException
 import com.chamroeurn.iqs.model.request.UserSubmitAnswersRequest
 import com.chamroeurn.iqs.model.response.*
@@ -180,8 +181,11 @@ class AnswerService(
             }
             var option: OptionEntity? = null
             var answersBoolean: Boolean? = null
-            try {
-                val optionId = UUID.fromString(answer.submittedValue)
+            val optionId = UUID.fromString(answer.submittedValue)
+
+            if(question.isCustomize == false && question.type !== QuestionTypes.MULTIPLE_CHOICE) {
+                answersBoolean = QuizConstants.getAnswerBy(optionId)
+            } else {
                 if (optionId !== null) {
                     option = optionRepository.findById(optionId).orElseThrow {
                         val problemDetail = ProblemDetail.forStatusAndDetail(
@@ -199,8 +203,6 @@ class AnswerService(
                         throw RestErrorResponseException(problemDetail)
                     }
                 }
-            } catch (ex: Exception) {
-                answersBoolean = answer.submittedValue.lowercase() === "true"
             }
 
            AnswerEntity(
