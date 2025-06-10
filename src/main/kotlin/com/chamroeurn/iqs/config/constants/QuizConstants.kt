@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.config.constants
 
 import com.chamroeurn.iqs.model.response.OptionResponse
+import com.chamroeurn.iqs.repository.entity.QuestionTypes
 import java.util.UUID
 
 object QuizConstants {
@@ -47,5 +48,15 @@ object QuizConstants {
 
     fun getAnswerBy(optionId: UUID?): Boolean {
        return mutableListOf(TRUE_OPTION_UUID, YES_OPTION_UUID).contains(optionId)
+    }
+
+    fun getAnswerOptionId(type: QuestionTypes, value: Boolean?): String? {
+        return value?.let {
+            return when (type) {
+                QuestionTypes.MULTIPLE_CHOICE -> null
+                QuestionTypes.TRUE_FALSE -> if (it) TRUE_OPTION_UUID.toString() else FALSE_OPTION_UUID.toString()
+                QuestionTypes.YES_NO -> if (it) YES_OPTION_UUID.toString() else NO_OPTION_UUID.toString()
+            }
+        }
     }
 }

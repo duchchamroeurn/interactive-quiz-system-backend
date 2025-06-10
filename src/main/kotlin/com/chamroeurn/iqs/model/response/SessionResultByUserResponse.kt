@@ -1,5 +1,6 @@
 package com.chamroeurn.iqs.model.response
 
+import com.chamroeurn.iqs.config.constants.QuizConstants
 import com.chamroeurn.iqs.repository.entity.AnswerEntity
 import java.util.UUID
 
@@ -21,11 +22,15 @@ fun MutableList<AnswerEntity>.toSessionResultByUserResponse(): SessionResultByUs
     val quiz = session.quiz
     val answers = mapNotNull {
         it.question.questionId?.let { it1 ->
-            val answerValue = if (it.option == null) it.replyAnswer.toString() else it.option.optionId.toString()
-                AnswerQuestionResponse(
-                    questionId = it1,
-                    answerId = answerValue
-                )
+            val answerValue = if (it.option == null) {
+                QuizConstants.getAnswerOptionId(it.question.type, it.replyAnswer) ?: ""
+            } else {
+                it.option.optionId.toString()
+            }
+            AnswerQuestionResponse(
+                questionId = it1,
+                answerId = answerValue
+            )
         }
     }
 

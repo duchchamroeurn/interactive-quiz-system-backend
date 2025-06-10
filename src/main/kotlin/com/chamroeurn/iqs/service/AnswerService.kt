@@ -6,6 +6,7 @@ import com.chamroeurn.iqs.model.request.UserSubmitAnswersRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.*
 import com.chamroeurn.iqs.repository.entity.*
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.stereotype.Service
@@ -81,6 +82,33 @@ class AnswerService(
         return SuccessResponse(
             message = "Successful list answers by user in the session.",
             data = answers.toSessionResultByUserResponse()
+        )
+    }
+
+    fun fetchAnswersByUser(userId: UUID, pageable: Pageable): PagedResponse<SubmissionResponse> {
+        val user = userRepository.findById(userId).orElseThrow {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        val pageAnswer = answerRepository.getUserSessionPerformance(user.userId!!, pageable)
+        if (pageAnswer.content.isEmpty()) {
+            val problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                "The content you are trying to access does not exist."
+            )
+            throw RestErrorResponseException(problemDetail)
+        }
+
+        return PagedResponse(
+            totalElements = pageAnswer.totalElements,
+            totalPages = pageAnswer.totalPages,
+            size = pageAnswer.size,
+            page = pageable.pageNumber,
+            data = pageAnswer.content
         )
     }
 

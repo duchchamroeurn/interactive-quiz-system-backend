@@ -28,7 +28,7 @@ data class SessionEntity(
     @OneToMany(mappedBy = "session", cascade = [CascadeType.DETACH], orphanRemoval = true, fetch = FetchType.EAGER)
     val submittedAnswers: MutableList<AnswerEntity> = mutableListOf(),
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE]) // Cascade types for convenience
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.EAGER) // Cascade types for convenience
     @JoinTable(
         name = "tbl_session_users", // Name of the join table
         joinColumns = [JoinColumn(name = "session_id")], // Column for SessionEntity's ID in the join table

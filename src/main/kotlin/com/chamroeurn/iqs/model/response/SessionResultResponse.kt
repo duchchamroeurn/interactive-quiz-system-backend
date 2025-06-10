@@ -69,3 +69,45 @@ fun MutableList<AnswerEntity>.toSessionResultResponse(): SessionResultResponse? 
     }
 
 }
+
+data class SubmissionResponse(
+    val sessionId: UUID?,
+    val sessionCode: String,
+    val total: Double,
+    val numberCorrectAnswer: Double,
+    val quizTitle: String,
+    val submittedDate: LocalDateTime?
+)
+
+
+fun MutableList<AnswerEntity>.toSubmissions(): List<SubmissionResponse> {
+    val listSubmissions: List<SubmissionResponse> = groupBy { it.session }.map { (session, answers) ->
+            SubmissionResponse(
+                sessionId = session.sessionId,
+                sessionCode = session.sessionCode,
+                total = session.quiz.questions.count().toDouble(),
+                numberCorrectAnswer = answers.sumOf { answer ->
+                    when (answer.question.type) {
+                        QuestionTypes.MULTIPLE_CHOICE -> {
+                            // Ensure option is not null and is correct
+                            if (answer.option?.isCorrect == true) 1.0 else 0.0
+                        }
+
+                        QuestionTypes.TRUE_FALSE, QuestionTypes.YES_NO -> {
+                            if (answer.question.isCustomize == true) {
+                                if (answer.option?.isCorrect == true) 1.0 else 0.0
+                            } else {
+                                if (answer.replyAnswer === answer.question.correctAnswer) 1.0 else 0.0
+                            }
+
+                        }
+                    }
+                },
+                quizTitle = session.quiz.title,
+                submittedDate = answers.sortedByDescending { it.answerTime }.first().answerTime
+            )
+    }
+
+    return listSubmissions
+}
+
