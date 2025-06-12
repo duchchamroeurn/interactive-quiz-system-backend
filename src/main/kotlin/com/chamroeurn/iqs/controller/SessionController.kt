@@ -1,5 +1,6 @@
 package com.chamroeurn.iqs.controller
 
+import com.chamroeurn.iqs.model.request.JoinSessionRequest
 import com.chamroeurn.iqs.model.request.StartSessionRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.service.SessionService
@@ -28,10 +29,10 @@ class SessionController(
         return ResponseEntity.ok(sessionResponse)
     }
 
-    @GetMapping("/code/{sessionCode}")
-    fun getSessionByCode(@PathVariable sessionCode: String): ResponseEntity<SuccessResponse<SessionDetailResponse>> {
+    @PostMapping("/join")
+    fun joinSessionByCode(@Valid @RequestBody requestBody: JoinSessionRequest): ResponseEntity<SuccessResponse<SessionDetailResponse>> {
 
-        val sessionDetailResponse = sessionService.fetchBySessionCode(sessionCode)
+        val sessionDetailResponse = sessionService.joinSessionByCode(requestBody)
         return ResponseEntity.ok(sessionDetailResponse)
     }
 

@@ -1,6 +1,7 @@
 package com.chamroeurn.iqs.service
 
 import com.chamroeurn.iqs.exception.RestErrorResponseException
+import com.chamroeurn.iqs.model.request.JoinSessionRequest
 import com.chamroeurn.iqs.model.request.StartSessionRequest
 import com.chamroeurn.iqs.model.response.*
 import com.chamroeurn.iqs.repository.QuizRepository
@@ -60,31 +61,45 @@ class SessionService(
         }
     }
 
-    fun fetchBySessionCode(sessionCode: String): SuccessResponse<SessionDetailResponse> {
-        val session = sessionRepository.findBySessionCode(sessionCode)
-
-        if (session == null) {
+    fun joinSessionByCode(request: JoinSessionRequest): SuccessResponse<SessionDetailResponse> {
+        val session = sessionRepository.findAvailableSessionNotAnsweredByCodeAndUser(request.sessionCode, request.userId).orElseThrow {
             val problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 "The content you are trying to access does not exist."
             )
             throw RestErrorResponseException(problemDetail)
         }
-
-        if (session.endTime != null) {
-            val problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.FORBIDDEN,
-                "This session has ended and is no longer accessible for participation."
-            )
-            throw RestErrorResponseException(problemDetail)
-        }
-
         return SuccessResponse(
             data = session.toSessionDetailResponse(),
             message = "We found the session you were looking for."
         )
-
     }
+
+//    fun fetchBySessionCode(sessionCode: String): SuccessResponse<SessionDetailResponse> {
+//        val session = sessionRepository.findBySessionCode(sessionCode)
+//
+//        if (session == null) {
+//            val problemDetail = ProblemDetail.forStatusAndDetail(
+//                HttpStatus.NOT_FOUND,
+//                "The content you are trying to access does not exist."
+//            )
+//            throw RestErrorResponseException(problemDetail)
+//        }
+//
+//        if (session.endTime != null) {
+//            val problemDetail = ProblemDetail.forStatusAndDetail(
+//                HttpStatus.FORBIDDEN,
+//                "This session has ended and is no longer accessible for participation."
+//            )
+//            throw RestErrorResponseException(problemDetail)
+//        }
+//
+//        return SuccessResponse(
+//            data = session.toSessionDetailResponse(),
+//            message = "We found the session you were looking for."
+//        )
+//
+//    }
 
     fun fetchBySessionId(sessionId: UUID): SuccessResponse<SessionDetailResponse> {
         val session = sessionRepository.findById(sessionId).orElseThrow {
@@ -240,6 +255,24 @@ class SessionService(
     fun getAvailableQuizzesForUser(userId: UUID, pageable: Pageable): PagedResponse<SessionWithQuizResponse> {
         // Option 1: Use the single comprehensive query (recommended)
         val accessibleSessionsPage = sessionRepository.findAccessibleSessionsByUserId(userId, pageable)
+
+        // Extract unique quizzes from the accessible sessions
+        val uniqueQuizzes = accessibleSessionsPage.content // Map each session to its associated quiz
+            .distinct().mapNotNull { it.toSessionWithQuizResponse() }    // Get only unique quizzes
+        // Manually create a Page object for quizzes based on the original page's metadata
+        return PagedResponse(
+            totalElements = accessibleSessionsPage.totalElements,
+            size = accessibleSessionsPage.size,
+            totalPages = accessibleSessionsPage.totalPages,
+            page = pageable.pageNumber,
+            data = uniqueQuizzes
+        )
+    }
+
+    @Transactional(readOnly = true) // Mark as read-only for performance and to ensure lazy loading works
+    fun getAvailablePublicQuizzesForUser(userId: UUID, pageable: Pageable): PagedResponse<SessionWithQuizResponse> {
+        // Option 1: Use the single comprehensive query (recommended)
+        val accessibleSessionsPage = sessionRepository.findPublicSessionsOpenAndNotStartedByUser(userId, pageable)
 
         // Extract unique quizzes from the accessible sessions
         val uniqueQuizzes = accessibleSessionsPage.content // Map each session to its associated quiz

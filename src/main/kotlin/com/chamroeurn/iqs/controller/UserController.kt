@@ -3,6 +3,7 @@ package com.chamroeurn.iqs.controller
 import com.chamroeurn.iqs.model.response.PagedResponse
 import com.chamroeurn.iqs.model.response.SessionWithQuizResponse
 import com.chamroeurn.iqs.model.response.UserResponse
+import com.chamroeurn.iqs.repository.entity.SessionAccessType
 import com.chamroeurn.iqs.service.SessionService
 import com.chamroeurn.iqs.service.UserService
 import org.springframework.data.domain.PageRequest
@@ -34,6 +35,7 @@ class UserController(
     @GetMapping("/{userId}/quizzes/available")
     fun getAvailableQuizzesForUser(
         @PathVariable userId: UUID,
+        @RequestParam(defaultValue = "PRIVATE") type: SessionAccessType,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "sessionId") sortBy: String, // Sort quizzes by title
@@ -46,7 +48,10 @@ class UserController(
         // For simplicity, we're applying it to the session fetch.
         val pageable = PageRequest.of(page, size, Sort.by(direction, sortBy))
 
-        val quizzesPage = sessionService.getAvailableQuizzesForUser(userId, pageable)
+        val quizzesPage = when(type) {
+            SessionAccessType.PUBLIC ->  sessionService.getAvailablePublicQuizzesForUser(userId, pageable)
+            SessionAccessType.PRIVATE ->  sessionService.getAvailableQuizzesForUser(userId, pageable)
+        }
         return ResponseEntity.ok(quizzesPage)
     }
 }
